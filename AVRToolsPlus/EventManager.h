@@ -30,27 +30,81 @@
  */
 
 
+/*!
+ * \file
+ *
+ * \brief This file provides an Event Manager using  functional interface under the namespace EventManager.
+ *
+ * To use these functions, include EventManager.h and link against EventManager.cpp.
+ *
+ * The event queue and and listener list are arrays of fixed size.  The size of
+ * both can be set at compile time.
+ *
+ * The default size of the dispatch table is 8 (event, listener) pairs;
+ * you can change the default by defining the macro \c EVENTMANAGER_DISPATCH_TABLE_SIZE prior to including the
+ * file EventManager.h, each time it is included.  So you should define it using a compiler option
+ * (e.g., \c -DEVENTMANAGER_DISPATCH_TABLE_SIZE=32) to ensure it is consistently defined throughout your project.
+ *
+ * The default size of the event queues is 8 events (note there are two queues, one for routine priority events,
+ * the other for high priority events.  You can change the default size of both queues by defining the macro
+ * \c EVENTMANAGER_EVENT_QUEUE_SIZE prior to including the
+ * file EventManager.h, each time it is included.  So you should define it using a compiler option
+ * (e.g., \c -DEVENTMANAGER_EVENT_QUEUE_SIZE=32) to ensure it is consistently defined throughout your project.
+ *
+ */
+
+
+
 #ifndef EventManager_h
 #define EventManager_h
 
+
 #include <stdint.h>
+
+
 
 // Size of the listener list.  Adjust as appropriate for your application.
 // Requires a total of sizeof(*f())+sizeof(int)+sizeof(bool) bytes of RAM for each unit of size
-#ifndef EVENTMANAGER_LISTENER_LIST_SIZE
-#define EVENTMANAGER_LISTENER_LIST_SIZE		8
+#ifndef EVENTMANAGER_DISPATCH_TABLE_SIZE
+#define EVENTMANAGER_DISPATCH_TABLE_SIZE        8
 #endif
+
+#if EVENTMANAGER_DISPATCH_TABLE_SIZE > 255
+#error "EVENTMANAGER_DISPATCH_TABLE_SIZE exceeds size of a uint8_t"
+#endif
+
+
+
 
 // Size of the event two queues.  Adjust as appropriate for your application.
 // Requires a total of 4 * sizeof(int) bytes of RAM for each unit of size
 #ifndef EVENTMANAGER_EVENT_QUEUE_SIZE
-#define EVENTMANAGER_EVENT_QUEUE_SIZE		8
+#define EVENTMANAGER_EVENT_QUEUE_SIZE           8
+#endif
+
+#if EVENTMANAGER_EVENT_QUEUE_SIZE > 255
+#error "EVENTMANAGER_EVENT_QUEUE_SIZE exceeds size of a uint8_t"
 #endif
 
 
 
+
+
+
+
+/*!
+ * \brief This namespace bundles the Event Manager functionality.  It provides logical cohesion
+ * for functions implement the Event Manager and prevents namespace collisions.
+*/
+
 namespace EventManager
 {
+
+    /*!
+    * \brief This enum provides common event names, purely for user convenience.
+    *
+    * \hideinitializer
+    */
 
     enum
     {
@@ -92,80 +146,261 @@ namespace EventManager
         kEventUser8,
         kEventUser9,
     };
-};
 
 
 
+    /*!
+    * \brief Type for an event listener (a.k.a. callback) function.
+    *
+    */
 
-
-namespace EventManager
-{
-
-    // Type for an event listener (a.k.a. callback) function
     typedef void ( *EventListener )( int eventCode, int eventParam );
 
-    // EventManager recognizes two kinds of events.  By default, events are
-    // are queued as low priority, but these constants can be used to explicitly
-    // set the priority when queueing events
-    //
-    // NOTE high priority events are always handled before any low priority events.
-    enum EventPriority { kHighPriority, kLowPriority };
 
 
-    // Add a listener
-    // Returns true if the listener is successfully installed, false otherwise (e.g. the dispatch table is full)
+    /*!
+    * \brief EventManager recognizes two kinds of events.  By default, events are
+    * are queued as low priority, but these constants can be used to explicitly
+    * set the priority when queueing events.
+    *
+    * \note High priority events are always handled before any low priority events.
+    *
+    * \hideinitializer
+    */
+
+    enum EventPriority
+    {
+        kHighPriority,
+        kLowPriority
+    };
+
+
+
+    /*!
+    * \brief Add an (event, listener) pair listner to the dispatch table.
+    *
+    * \arg \c eventCode the event code this listener listens for.
+    * \arg \c listener the listener to be called when there is an event with this eventCode.
+    *
+    * \returns True if (the event, listener) pair is successfully installed in the dispatch table,
+    * false otherwise (e.g. the dispatch table is full).
+    */
+
     bool addListener( int eventCode, EventListener listener );
 
-    // Remove (event, listener) pair (all occurrences)
-    // Other listeners with the same function or event code will not be affected
+
+
+    /*!
+    * \brief Remove this (event, listener) pair from the dispatch table.
+    * Other listener pairs with the same function or event code will not be affected.
+    *
+    * \arg \c eventCode the event code of the (event, listener) pair to be removed.
+    * \arg \c listener the listner of the (event, listener) pair to be removed.
+    *
+    * \returns True if the (event, listener) pair is successfully removed, false otherwise.
+    */
+
     bool removeListener( int eventCode, EventListener listener );
 
-    // Remove all occurrances of a listener
-    // Removes this listener regardless of the event code; returns number removed
-    // Useful when one listener handles many different events
+
+
+    /*!
+    * \brief Remove all occurrances of a listener from the dispatch table, regardless of the event code.
+    * returns number removed.
+    *
+    * This function is useful when one listener handles many different events.
+    *
+    * \arg \c listener the listener to be removed.
+    *
+    * \returns The number of entries removed from the dispatch table.
+    *
+    */
+
     int removeListener( EventListener listener );
 
-    // Enable or disable a listener
-    // Return true if the listener was successfully enabled or disabled, false if the listener was not found
+
+
+    /*!
+    * \brief Enable or disable an (event, listener) pair entry in the dispatch table.
+    *
+    * \arg \c eventCode the event code of the (event, listener) pair to be enabled or disabled.
+    * \arg \c listener the listner of the (event, listener) pair to be enabled or disabled.
+    * \arg \c enable pass true to enable the (event, listener) pair, false to disable it.
+    *
+    * \returns True if the (event, listener) pair was successfully enabled or disabled,
+    * false if the (event, listener) pair was not found.
+    */
+
     bool enableListener( int eventCode, EventListener listener, bool enable );
 
-    // Returns the current enabled/disabled state of the (eventCode, listener) combo
+
+
+    /*!
+    * \brief Obtain the the current enabled/disabled state of an (eventCode, listener) pair.
+    *
+    * \arg \c eventCode the event code of the (event, listener) pair.
+    * \arg \c listener the listner of the (event, listener) pair.
+    *
+    *
+    * \returns The current enabled/disabled state of the (eventCode, listener) pair.
+    */
+
     bool isListenerEnabled( int eventCode, EventListener listener );
 
-    // The default listener is a callback function that is called when an event with no listener is processed
-    // These functions set, clear, and enable/disable the default listener
+
+
+    /*!
+    * \brief Set a default listener.  The default listener is a callback function that is called when an
+    * event with no listener is processed.
+    *
+    * \arg \c listener the listner to be set as the default listener.
+    *
+    * \returns True if the default listener is successfully installed, false if \c listener is null.
+    */
+
     bool setDefaultListener( EventListener listener );
+
+
+
+    /*!
+    * \brief Remvoes the default listener.  The default listener is a callback function that is called when an
+    * event with no listener is processed.
+    */
+
     void removeDefaultListener();
+
+
+
+    /*!
+    * \brief Enable or disable the default listener.  The default listener is a callback function that is called when an
+    * event with no listener is processed.
+    *
+    * \arg \c enable Pass true to enable the default listener, false to disable it.
+    */
+
     void enableDefaultListener( bool enable );
 
-    // Is the ListenerList empty?
+
+
+    /*!
+    * \brief Check if the listener list (a.k.a., dispatch table) is empty.
+    *
+    * \returns True if the listener list (dispatch table) is empty, false if not.
+    */
+
     bool isListenerListEmpty();
 
-    // Is the ListenerList full?
+
+
+    /*!
+    * \brief Check if the listener list (a.k.a., dispatch table) is full.
+    *
+    * \returns True if the listener list (dispatch table) is full, false if not.
+    */
+
     bool isListenerListFull();
+
+
+
+    /*!
+    * \brief Get the number of listeners in the dispatch table.
+    *
+    * \returns The number of entries in the listener list (a.k.a., dispatch table).
+    */
 
     int numListeners();
 
-    // Returns true if no events are in the queue
+
+
+    /*!
+    * \brief Check if the event queue is empty.
+    *
+    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    *
+    * \returns True if the specified event queue is empty.
+    */
+
     bool isEventQueueEmpty( EventPriority pri = kLowPriority );
 
-    // Returns true if no more events can be inserted into the queue
+
+
+    /*!
+    * \brief Check if the event queue is full.
+    *
+    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    *
+    * \returns True if the specified event queue is full.
+    */
+
     bool isEventQueueFull( EventPriority pri = kLowPriority );
 
-    // Actual number of events in queue
+
+
+    /*!
+    * \brief Get the number of events in the event queue.
+    *
+    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    *
+    * \returns The number of events in the specified event queue.
+    */
+
     int getNumEventsInQueue( EventPriority pri = kLowPriority );
 
-    // tries to insert an event into the queue;
-    // returns true if successful, false if the
-    // queue if full and the event cannot be inserted
+
+
+    /*!
+    * \brief Tries to add an event into the event queue.
+    *
+    * \arg \c eventCode  Identifies the event to be added.
+    * \arg \c eventParam  A integer parameter associated with this event.
+    * \arg \c pri Specifies which queue gets the event: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    *
+    * \returns True if successful; false if the queue is full and the event cannot be added.
+    */
+
     bool queueEvent( int eventCode, int eventParam, EventPriority pri = kLowPriority );
 
-    // this must be called regularly (usually by calling it inside the loop() function)
+
+
+    /*!
+    * \brief Processes one event from the event queue and
+    * dispatches it to the corresponding listeners stored in the dispatch table.
+    *
+    * Events are taken preferentially from the high priority queue.  If the high priority queue is empty,
+    * then events are taken from the low prioirty queue.
+    *
+    * All listeners associated with the event that are enabled will be called.  Disabled listeners are not called.
+    *
+    * The event processed is removed from the event queue (even if there is no listener to handle it).
+    *
+    * \note This function should be called regularly to keep the event queues from getting full.  This is usually
+    * done by calling it inside an event processing loop.
+    *
+    * \returns The number of event handlers called.
+    */
+
     int processEvent();
 
-    // this function can be called to process ALL events in the queue
-    // WARNING:  if interrupts are adding events as fast as they are being processed
-    // this function might never return.  YOU HAVE BEEN WARNED.
+
+
+    /*!
+    * \brief Processes \e all the events in the event queues and dispatches them to the corresponding listeners
+    * stored in the dispatch table.
+    *
+    * Events are taken preferentially from the high priority queue.  If the high priority queue is empty,
+    * then events are taken from the low prioirty queue.
+    *
+    * All listeners associated with the event that are enabled will be called.  Disabled listeners are not called.
+    *
+    * The event processed is removed from the event queue (even if there is no listener to handle it).
+    *
+    * \note If interrupts or other asynchronous processes are adding events as they are being processed,
+    * this function might not return for a long time.  If events are added as quickly as this function
+    * processes them, this function will never return.  .
+    *
+    * \returns The number of event handlers called.
+    */
+
     int processAllEvents();
 
 };

@@ -146,7 +146,7 @@ namespace EventManager
 
         // Maximum number of event/callback entries
         // Can be changed to save memory or allow more events to be dispatched
-        static const int kMaxListeners = EVENTMANAGER_LISTENER_LIST_SIZE;
+        static const int kMaxListeners = EVENTMANAGER_DISPATCH_TABLE_SIZE;
 
         // Actual number of event listeners
         int mNumListeners;
