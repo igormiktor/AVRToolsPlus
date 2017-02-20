@@ -41,14 +41,14 @@
  * both can be set at compile time.
  *
  * The default size of the dispatch table is 8 (event, listener) pairs;
- * you can change the default by defining the macro \c EVENTMANAGER_DISPATCH_TABLE_SIZE prior to including the
- * file EventManager.h, each time it is included.  So you should define it using a compiler option
+ * you can change the default at compile time by defining the macro \c EVENTMANAGER_DISPATCH_TABLE_SIZE prior to including the
+ * file EventManager.h, each time it is included.  Define it using a compiler option
  * (e.g., \c -DEVENTMANAGER_DISPATCH_TABLE_SIZE=32) to ensure it is consistently defined throughout your project.
  *
- * The default size of the event queues is 8 events (note there are two queues, one for routine priority events,
- * the other for high priority events.  You can change the default size of both queues by defining the macro
- * \c EVENTMANAGER_EVENT_QUEUE_SIZE prior to including the
- * file EventManager.h, each time it is included.  So you should define it using a compiler option
+ * The default size of the event queues is 8 events (note there are two queues, one for routine priority events),
+ * the other for high priority events.  You can change the default size of both of the event queues at compile time
+ * by defining the macro \c EVENTMANAGER_EVENT_QUEUE_SIZE prior to including the
+ * file EventManager.h, each time it is included.  Define it using a compiler option
  * (e.g., \c -DEVENTMANAGER_EVENT_QUEUE_SIZE=32) to ensure it is consistently defined throughout your project.
  *
  */
@@ -106,7 +106,7 @@ namespace EventManager
     * \hideinitializer
     */
 
-    enum
+    enum GenericEvents
     {
         kEventNone,
         kEventKeyPress,
@@ -177,7 +177,7 @@ namespace EventManager
 
 
     /*!
-    * \brief Add an (event, listener) pair listner to the dispatch table.
+    * \brief Add an (event, listener) pair listener to the dispatch table.
     *
     * \arg \c eventCode the event code this listener listens for.
     * \arg \c listener the listener to be called when there is an event with this eventCode.
@@ -195,7 +195,7 @@ namespace EventManager
     * Other listener pairs with the same function or event code will not be affected.
     *
     * \arg \c eventCode the event code of the (event, listener) pair to be removed.
-    * \arg \c listener the listner of the (event, listener) pair to be removed.
+    * \arg \c listener the listener of the (event, listener) pair to be removed.
     *
     * \returns True if the (event, listener) pair is successfully removed, false otherwise.
     */
@@ -224,7 +224,7 @@ namespace EventManager
     * \brief Enable or disable an (event, listener) pair entry in the dispatch table.
     *
     * \arg \c eventCode the event code of the (event, listener) pair to be enabled or disabled.
-    * \arg \c listener the listner of the (event, listener) pair to be enabled or disabled.
+    * \arg \c listener the listener of the (event, listener) pair to be enabled or disabled.
     * \arg \c enable pass true to enable the (event, listener) pair, false to disable it.
     *
     * \returns True if the (event, listener) pair was successfully enabled or disabled,
@@ -239,7 +239,7 @@ namespace EventManager
     * \brief Obtain the the current enabled/disabled state of an (eventCode, listener) pair.
     *
     * \arg \c eventCode the event code of the (event, listener) pair.
-    * \arg \c listener the listner of the (event, listener) pair.
+    * \arg \c listener the listener of the (event, listener) pair.
     *
     *
     * \returns The current enabled/disabled state of the (eventCode, listener) pair.
@@ -253,7 +253,7 @@ namespace EventManager
     * \brief Set a default listener.  The default listener is a callback function that is called when an
     * event with no listener is processed.
     *
-    * \arg \c listener the listner to be set as the default listener.
+    * \arg \c listener the listener to be set as the default listener.
     *
     * \returns True if the default listener is successfully installed, false if \c listener is null.
     */
@@ -275,7 +275,7 @@ namespace EventManager
     * \brief Enable or disable the default listener.  The default listener is a callback function that is called when an
     * event with no listener is processed.
     *
-    * \arg \c enable Pass true to enable the default listener, false to disable it.
+    * \arg \c enable pass true to enable the default listener, false to disable it.
     */
 
     void enableDefaultListener( bool enable );
@@ -315,7 +315,7 @@ namespace EventManager
     /*!
     * \brief Check if the event queue is empty.
     *
-    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    * \arg \c pri the desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
     *
     * \returns True if the specified event queue is empty.
     */
@@ -327,7 +327,7 @@ namespace EventManager
     /*!
     * \brief Check if the event queue is full.
     *
-    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    * \arg \c pri the desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
     *
     * \returns True if the specified event queue is full.
     */
@@ -339,7 +339,7 @@ namespace EventManager
     /*!
     * \brief Get the number of events in the event queue.
     *
-    * \arg \c pri The desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    * \arg \c pri the desired event queue: kLowPriority or kHighPriority.  Defaults to kLowPriority.
     *
     * \returns The number of events in the specified event queue.
     */
@@ -351,9 +351,9 @@ namespace EventManager
     /*!
     * \brief Tries to add an event into the event queue.
     *
-    * \arg \c eventCode  Identifies the event to be added.
-    * \arg \c eventParam  A integer parameter associated with this event.
-    * \arg \c pri Specifies which queue gets the event: kLowPriority or kHighPriority.  Defaults to kLowPriority.
+    * \arg \c eventCode  identifies the event to be added.
+    * \arg \c eventParam  an integer parameter associated with this event.
+    * \arg \c pri specifies which queue gets the event: kLowPriority or kHighPriority.  Defaults to kLowPriority.
     *
     * \returns True if successful; false if the queue is full and the event cannot be added.
     */
