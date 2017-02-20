@@ -31,7 +31,7 @@ I have only tested them on ATmega328 and ATmega2560).
 The tools in AVRToolsPlus are organized as a collection of independent modules.
 These modules are:
 
-- [EventManager module] (@ref EventManager)
+- EventManager module
 
 The AVRToolsPlus modules do not depend on any of the AVRTools modules, but are fully
 interoperable with AVRTools.
@@ -45,7 +45,7 @@ Detailed documentation is provided by this PDF document located in the repositor
 
 
 
-## Feedback
+# Feedback #
 
 If you find a bug or if you would like a specific feature, please report it at:
 

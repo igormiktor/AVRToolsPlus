@@ -40,7 +40,7 @@ interoperable with AVRTools.
 
 ## Documentation ##
 
-Detailed documentation is provided by this PDF document located in the repository, or
+Detailed documentation is provided by the PDF document located in the repository, or
 [online in HTML form] (http://igormiktor.github.io/AVRToolsPlus/).
 
 
