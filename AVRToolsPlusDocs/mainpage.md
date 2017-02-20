@@ -1,7 +1,7 @@
-# AVRToolsPlus:  A library of higher-level tools for the AVR ATmega328 and ATmega2560 Microcontrollers #
+AVRToolsPlus:  A library of higher-level tools for the AVR ATmega328 and ATmega2560 Microcontrollers        {#mainpage}
+====================================================================================================
 
-
-## Introduction ##
+# Introduction #                                                      {#AvrPlusIntroduction}
 
 The AVRToolsPlus library provides a collection of functionality for the AVR
 family of 8-bit microcontrollers.  Unlike the low-level functionality found in
@@ -18,7 +18,7 @@ package them in a separate library.
 
 
 
-## Overview ##
+# Overview #                                                          {#AvrPlusOverview}
 
 The AVRToolsPlus library includes a collection tools that provide higher-level
 functionality.  These tools are designed for the AVR family of 8-bit
@@ -31,21 +31,21 @@ I have only tested them on ATmega328 and ATmega2560).
 The tools in AVRToolsPlus are organized as a collection of independent modules.
 These modules are:
 
-- EventManager module
+- [EventManager module] (@ref EventManager)
 
 The AVRToolsPlus modules do not depend on any of the AVRTools modules, but are fully
 interoperable with AVRTools.
 
 
 
-## Documentation ##
+# Documentation #
 
 Detailed documentation is provided by this PDF document located in the repository, or
 [online in HTML form] (http://igormiktor.github.io/AVRToolsPlus/).
 
 
 
-## Feedback ##
+## Feedback
 
 If you find a bug or if you would like a specific feature, please report it at:
 
@@ -54,3 +54,4 @@ https://github.com/igormiktor/AVRToolsPlus/issues
 If you would like to hack on this project, don't hesitate to fork it on GitHub.
 If you would like me to incorporate changes you made, please send me
 a Pull Request.
+
